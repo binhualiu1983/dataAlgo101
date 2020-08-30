@@ -1,2 +1,7 @@
-/bin/
-/obj/
+bin/
+obj/
+.metadata/
+.settings/
+target/
+.project
+.classpath
