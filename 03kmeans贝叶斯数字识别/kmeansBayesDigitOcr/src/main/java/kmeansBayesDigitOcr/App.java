@@ -55,15 +55,12 @@ public static void KmeansBayes() throws IOException
 }
 
 
-
-public static void kmeansTrain()
-{
-	 File trainDir = new File("C:\\Code\\code\\dataAlgo101\\数据集\\数字识别\\trainingDigits");
-	 
-}
-
 public static void loadTrainData() throws IOException
 {
+     for(int i=0; i<10; i++)
+     {
+    	 trainData.put(i, new HashMap<String, ArrayList<Integer>>());
+     }
      
      File trainDir = new File("C:\\Code\\code\\dataAlgo101\\数据集\\数字识别\\trainingDigits");
      for(File file : trainDir.listFiles())
@@ -85,10 +82,106 @@ public static void loadTrainData() throws IOException
 	    	   vect.add(1);
 	       }
 	      }
-	      trainData.put(digit, new Tuple<String, ArrayList<Integer>>(fileName, vect));
-      
+	      trainData.get(digit).put(fileName, vect);
      }
 }
+
+
+public static void kmeansTrain()
+{
+	for(Map.Entry<Integer, Map<String, ArrayList<Integer>>> entry: trainData.entrySet())
+	{
+		int digit = entry.getKey();
+		ArrayList<Map<String, ArrayList<Integer>>> kmeansResult = doKmeansTrain(entry.getValue());
+		kmeansData.put(digit, kmeansResult);
+	}
+}
+
+public static ArrayList<Map<String, ArrayList<Integer>>> doKmeansTrain(Map<String, ArrayList<Integer>> digitTrainData)
+{
+	double[][] kPoints = new double[K][1024];
+	int k=0;
+	for(Map.Entry<String,  ArrayList<Integer>> entry: digitTrainData.entrySet())
+	{
+		double[] points = kPoints[k];
+		for(int i=0; i<1024; i++)
+		{
+			points[i] = entry.getValue().get(i);
+		}
+		k++;
+		if(k>=K)
+			break;
+	}
+	
+	ArrayList<Map<String, ArrayList<Integer>>> kmeans = null;
+	for(int i=0; i<10; i++)
+	{
+		kmeans = doKmeansTrainOneRound(digitTrainData, kPoints);
+	}
+	return kmeans;
+}
+
+public static ArrayList<Map<String, ArrayList<Integer>>> doKmeansTrainOneRound(Map<String, ArrayList<Integer>> digitTrainData, double[][] kPoints)
+{
+	ArrayList<Map<String, ArrayList<Integer>>> kmeans = new ArrayList<Map<String, ArrayList<Integer>>>();
+	for(int i=0; i<K; i++)
+	{
+		kmeans.add(new HashMap<String, ArrayList<Integer>>());
+	}
+	
+	for(Map.Entry<String, ArrayList<Integer>> digitFile: digitTrainData.entrySet())
+	{
+		
+		int k = 0 ;
+		double minDistance = 1024*1024; 
+		for(int i=0; i<K; i++ )
+		{
+			double theDistance = 0;
+			for(int j=0; j<1024; j++)
+			{
+				theDistance += Math.abs(kPoints[i][j] - digitFile.getValue().get(j));
+			}
+			
+			if(theDistance< minDistance)
+			{
+				k = i;
+				minDistance = theDistance;
+			}
+		}
+		
+		kmeans.get(k).put(digitFile.getKey(), digitFile.getValue());
+	}
+	
+	//count new points
+	for(int i = 0; i<K; i++)
+	{
+		Map<String, ArrayList<Integer>> theMeans = kmeans.get(i);
+		int count = theMeans.size();
+		double[] thePoint =  kPoints[i];
+		for(int j=0; j<1024; j++)
+		{
+			thePoint[j] = 0.0;
+		}
+		
+		for(Map.Entry<String, ArrayList<Integer>> digitFile: theMeans.entrySet())
+		{
+			for(int j=0; j<1024; j++)
+			{
+				thePoint[j] += digitFile.getValue().get(j);
+			}
+			
+		}
+		for(int j=0; j<1024; j++)
+		{
+			thePoint[j] = thePoint[j]/count;
+		}
+		
+	}
+	
+	return kmeans;
+}
+
+
 
 public static void trainBayes()
 {
@@ -153,6 +246,18 @@ public static void KMeansBayesTest() throws IOException
      
      String context = FileUtils.readFileToString(testFile, "UTF-8");
      List<Integer> points = new   ArrayList<Integer>();
+     for(int i=0; i<context.length(); i++)
+     {
+      char c = context.charAt(i);
+      if(c == '0')
+      {
+    	  points.add(0);
+      }
+      else if(c == '1')
+      {
+    	  points.add(1);
+      }
+     }
      
      for(int digit=0; digit<10; digit++)
      {
