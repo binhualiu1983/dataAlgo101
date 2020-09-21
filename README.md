@@ -10,3 +10,17 @@
 
 03kmeans贝叶斯数字识别
 准确率 98.09%， 性能和 01贝叶斯数字识别 一样快。 但是准确率提高很多。
+
+
+
+04线性回归广告预测
+
+直接使用org.apache.commons.math3的OLSMultipleLinearRegression
+
+
+
+05pythonBayesAds
+
+垃圾邮件预测错误率 45/1001
+
+正常邮件预测错误率 6/1000

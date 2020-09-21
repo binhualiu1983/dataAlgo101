@@ -153,10 +153,11 @@ for text in spam_dataframe["text"]:
     
     total+=1
     if(ham_posibility>spam_posibility):
-        print("正常邮件")
+        #print("正常邮件")
         error+=1
     else:
-        print("垃圾邮件")
+        #print("垃圾邮件")
+        error+=0
 
 print(total)
 print(error)
@@ -195,9 +196,10 @@ for text in ham_dataframe["text"]:
     
     total+=1
     if(ham_posibility>spam_posibility):
-        print("正常邮件")
+        #print("正常邮件")
+        error+=0
     else:
-        print("垃圾邮件")
+        #print("垃圾邮件")
         error+=1
 
 print(total)
